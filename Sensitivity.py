@@ -23,12 +23,12 @@ def grid_size_vs_num_agents():
                 5, grid_size=grid_size, num_agents=agents, scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-                hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=0.25,
+                hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
                 steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-                create_csv=False)
+                safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
-    plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[20, 400, 200, 40])
+    plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[20, 400, 200, 20])
     plt.colorbar(label='Average Fitness')
     plt.xlabel('Number of Agents')
     plt.ylabel('Grid Size')
@@ -45,9 +45,9 @@ def base_resource_speed_vs_fitness():
             10, grid_size=80, num_agents=100, scout_percentage=0.1,
             resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
             max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-            hazard_radius=7, agent_speed=1.0, base_resource_speed=speed, predator_speed=0.25,
+            hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=speed, predator_speed=0.25,
             steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-            create_csv=False)
+            safe_zone=None, create_csv=False)
         fitness_values.append(fitness)
 
     plt.figure()
@@ -68,9 +68,9 @@ def predator_speed_vs_fitness():
             10, grid_size=80, num_agents=100, scout_percentage=0.1,
             resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
             max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-            hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=speed,
+            hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=speed,
             steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-            create_csv=False)
+            safe_zone=None, create_csv=False)
         fitness_values.append(fitness)
 
     plt.figure()
@@ -91,9 +91,9 @@ def detection_radius_vs_fitness():
             10, grid_size=80, num_agents=100, scout_percentage=0.1,
             resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
             max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-            hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=0.25,
+            hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
             steps=500, detection_radius=radius, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-            create_csv=False)
+            safe_zone=None, create_csv=False)
         fitness_values.append(fitness)
 
     plt.figure()
@@ -114,9 +114,9 @@ def fitness_vs_steps():
             10, grid_size=80, num_agents=100, scout_percentage=0.1,
             resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
             max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-            hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=0.25,
+            hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
             steps=steps, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-            create_csv=False)
+            safe_zone=None, create_csv=False)
         fitness_values.append(fitness)
 
     plt.figure()
@@ -126,14 +126,6 @@ def fitness_vs_steps():
     plt.title('Fitness vs Steps of the Simulation')
     plt.grid(True)
     plt.show()
-
-
-def average_fitness_over_runs(runs, **simulation_params):
-    fitness_values = []
-    for _ in range(runs):
-        fitness, _ = run_simulation(**simulation_params)
-        fitness_values.append(fitness)
-    return np.mean(fitness_values)
 
 
 def grid_size_vs_detection_radius():
@@ -147,9 +139,9 @@ def grid_size_vs_detection_radius():
                 10, grid_size=grid_size, num_agents=100, scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-                hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=0.25,
+                hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
                 steps=500, detection_radius=radius, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-                create_csv=False)
+                safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
     plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[1, 20, 200, 40])
@@ -171,9 +163,9 @@ def num_agents_vs_agent_speed():
                 10, grid_size=80, num_agents=agents, scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-                hazard_radius=7, agent_speed=speed, base_resource_speed=0.1, predator_speed=0.25,
+                hazard_radius=7, agent_speed=speed, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
                 steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-                create_csv=False)
+                safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
     plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[0.2, 2.0, 400, 20])
@@ -195,9 +187,9 @@ def predator_speed_vs_hazard_radius():
                 10, grid_size=80, num_agents=100, scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-                hazard_radius=radius, agent_speed=1.0, base_resource_speed=0.1, predator_speed=speed,
+                hazard_radius=radius, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=speed,
                 steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-                create_csv=False)
+                safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
     plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[1, 10, 1.0, 0.1])
@@ -220,9 +212,9 @@ def grid_size_vs_num_agents_3d():
                 10, grid_size=grid_sizes[j], num_agents=num_agents[i], scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=5, hazard_positions=[(25, 25), (60, 60)],
-                hazard_radius=7, agent_speed=1.0, base_resource_speed=0.1, predator_speed=0.25,
+                hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
                 steps=500, detection_radius=5, resource_quantity=300, aggressiveness=0.5, num_predators=2,
-                create_csv=False)
+                safe_zone=None, create_csv=False)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
@@ -252,7 +244,8 @@ def analyze_randomization_impact():
     hazard_positions = [(25, 25), (60, 60)]
     hazard_radius = 7
     agent_speed = 1.0
-    base_resource_speed = 0.1
+    base_speed = 0.0
+    resource_speed = 0.0
     predator_speed = 0.25
     steps = 500
     detection_radius = 5
@@ -267,9 +260,9 @@ def analyze_randomization_impact():
         resource_positions=resource_positions, base_positions=base_positions,
         max_hearing_distance=max_hearing_distance, predator_radius=predator_radius,
         hazard_positions=hazard_positions, hazard_radius=hazard_radius,
-        agent_speed=agent_speed, base_resource_speed=base_resource_speed, predator_speed=predator_speed,
+        agent_speed=agent_speed, base_speed=base_speed, resource_speed=resource_speed, predator_speed=predator_speed,
         steps=steps, detection_radius=detection_radius, resource_quantity=resource_quantity,
-        aggressiveness=aggressiveness, num_predators=num_predators, create_csv=False)
+        aggressiveness=aggressiveness, num_predators=num_predators, safe_zone=None, create_csv=False)
 
     # Plot the distribution of fitness values
     plt.figure(figsize=(10, 6))
@@ -280,14 +273,39 @@ def analyze_randomization_impact():
     plt.show()
 
 
+def predator_radius_vs_aggressiveness():
+    predator_radii = np.arange(1, 11, 1)
+    aggressiveness_levels = np.arange(0.1, 1.1, 0.1)
+    fitness_matrix = np.zeros((len(predator_radii), len(aggressiveness_levels)))
+
+    for i, radius in enumerate(predator_radii):
+        for j, aggressiveness in enumerate(aggressiveness_levels):
+            fitness_matrix[i, j] = average_fitness_over_runs(
+                10, grid_size=80, num_agents=100, scout_percentage=0.1,
+                resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
+                max_hearing_distance=10, predator_radius=radius, hazard_positions=[(25, 25), (60, 60)],
+                hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
+                steps=500, detection_radius=5, resource_quantity=300, aggressiveness=aggressiveness, num_predators=2,
+                safe_zone=None, create_csv=False)
+
+    plt.figure(figsize=(10, 8))
+    plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[0.1, 1.0, 1, 10])
+    plt.colorbar(label='Average Fitness')
+    plt.xlabel('Aggressiveness')
+    plt.ylabel('Predator Radius')
+    plt.title('Predator Radius vs Aggressiveness')
+    plt.show()
+
+
 if __name__ == "__main__":
     grid_size_vs_num_agents()
-    # base_resource_speed_vs_fitness()
-    # predator_speed_vs_fitness()
-    # detection_radius_vs_fitness()
-    # fitness_vs_steps()
-    # grid_size_vs_detection_radius()
-    # num_agents_vs_agent_speed()
-    # predator_speed_vs_hazard_radius()
-    # grid_size_vs_num_agents_3d()
-    # analyze_randomization_impact()
+    base_resource_speed_vs_fitness()
+    predator_speed_vs_fitness()
+    detection_radius_vs_fitness()
+    fitness_vs_steps()
+    grid_size_vs_detection_radius()
+    num_agents_vs_agent_speed()
+    predator_speed_vs_hazard_radius()
+    grid_size_vs_num_agents_3d()
+    analyze_randomization_impact()
+    predator_radius_vs_aggressiveness()
