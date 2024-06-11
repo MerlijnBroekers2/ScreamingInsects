@@ -1,39 +1,40 @@
 import random
 import numpy as np
 import pandas as pd
-import cv2
-import os
-
 
 class Agent:
-    def __init__(self, grid_size, max_hearing_distance):
-        self.x = random.uniform(0, grid_size - 1)
-        self.y = random.uniform(0, grid_size - 1)
+    def __init__(self, grid_size, max_hearing_distance, speed, detection_radius=2, aggressiveness=0.5):
+        self.x = random.uniform(2, grid_size - 2)
+        self.y = random.uniform(2, grid_size - 2)
         self.grid_size = grid_size
         self.max_hearing_distance = max_hearing_distance
+        self.speed = speed
+        self.detection_radius = detection_radius
+        self.aggressiveness = aggressiveness
         self.counters = {'resource': random.randint(0, grid_size - 1), 'base': random.randint(0, grid_size - 1)}
         if random.randint(0, 1) == 1:
             self.current_target = 'resource'
         else:
             self.current_target = 'base'
-        self.direction = random.uniform(0, 2 * np.pi)  # Angle in radians
+        self.direction = random.uniform(0, 2 * np.pi)
+        self.collected_resources = 0
+        self.alive = True
 
     def move(self):
-        dx = np.cos(self.direction)
-        dy = np.sin(self.direction)
+        dx = self.speed * np.cos(self.direction)
+        dy = self.speed * np.sin(self.direction)
         new_x = self.x + dx
         new_y = self.y + dy
 
-        # Bounce off the boundaries
         if new_x < 0 or new_x >= self.grid_size:
             self.direction = np.pi - self.direction
-            new_x = self.x  # Prevent getting stuck by not updating position in the current step
+            new_x = self.x
         else:
             self.x = new_x
 
         if new_y < 0 or new_y >= self.grid_size:
             self.direction = -self.direction
-            new_y = self.y  # Prevent getting stuck by not updating position in the current step
+            new_y = self.y
         else:
             self.y = new_y
 
@@ -42,15 +43,22 @@ class Agent:
         for key in self.counters:
             self.counters[key] += 1
 
-    def check_position(self, resource_positions, base_position):
-        if (int(self.x), int(self.y)) in resource_positions:
-            self.counters['resource'] = 0
-            self.current_target = 'base'
-            self.direction = (self.direction + np.pi) % (2 * np.pi)  # Invert direction
-        if (int(self.x), int(self.y)) == base_position:
+    def check_position(self, resources, base_position):
+        for resource in resources:
+            if np.sqrt((self.x - resource.x) ** 2 + (self.y - resource.y) ** 2) <= self.detection_radius:
+                self.counters['resource'] = 0
+                self.current_target = 'base'
+                self.direction = (self.direction + np.pi) % (2 * np.pi)
+                self.collected_resources += 1
+                resource.quantity -= 1  # Reduce resource quantity by one
+                if resource.quantity <= 0:
+                    resources.remove(resource)  # Remove depleted resource
+                return
+
+        if np.sqrt((self.x - base_position[0]) ** 2 + (self.y - base_position[1]) ** 2) <= self.detection_radius:
             self.counters['base'] = 0
             self.current_target = 'resource'
-            self.direction = (self.direction + np.pi) % (2 * np.pi)  # Invert direction
+            self.direction = (self.direction + np.pi) % (2 * np.pi)
 
     def shout(self):
         shout_value_resource = self.counters['resource'] + self.max_hearing_distance
@@ -83,23 +91,32 @@ class Agent:
         dy = self.y - py
         self.direction = np.arctan2(dy, dx)
 
-    def react_to_predator(self, predator_x, predator_y, predator_radius):
-        distance = np.sqrt((self.x - predator_x) ** 2 + (self.y - predator_y) ** 2)
-        if distance <= predator_radius:
-            self.set_direction_away(predator_x, predator_y)
+    def react_to_predator(self, predators, predator_radius):
+        for predator in predators:
+            distance = np.sqrt((self.x - predator.x) ** 2 + (self.y - predator.y) ** 2)
+            if distance <= predator_radius:
+                if random.random() > self.aggressiveness:  # Only avoid predator based on aggressiveness level
+                    self.set_direction_away(predator.x, predator.y)
+                if distance <= predator_radius / 4:  # Agent dies if too close to the predator
+                    self.alive = False
+
+    def react_to_hazard(self, hazard_x, hazard_y, hazard_radius):
+        distance = np.sqrt((self.x - hazard_x) ** 2 + (self.y - hazard_y) ** 2)
+        if distance <= hazard_radius:
+            self.set_direction_away(hazard_x, hazard_y)
             return True
         return False
 
 
 class ScoutAgent(Agent):
-    def check_position(self, resource_positions, base_position):
-        if (int(self.x), int(self.y)) in resource_positions:
-            self.counters['resource'] = 0
-            # Do not change the current target after finding a resource
+    def check_position(self, resources, base_position):
+        for resource in resources:
+            if np.sqrt((self.x - resource.x) ** 2 + (self.y - resource.y) ** 2) <= self.detection_radius:
+                self.counters['resource'] = 0
 
     def shout(self):
         shout_value_resource = self.counters['resource'] + self.max_hearing_distance
-        return self.x, self.y, shout_value_resource, 10000 # Large value set for the value communicated about the base
+        return self.x, self.y, shout_value_resource, 10000
 
     def listen(self, shouts):
         for shout in shouts:
@@ -110,29 +127,33 @@ class ScoutAgent(Agent):
                 if shout_value_resource < self.counters['resource']:
                     self.counters['resource'] = shout_value_resource
 
+                if shout_value_base < self.counters['base']:
+                    self.counters['base'] = shout_value_base
+
+
 class Predator:
-    def __init__(self, grid_size):
-        self.x = random.uniform(0, grid_size - 1)
-        self.y = random.uniform(0, grid_size - 1)
+    def __init__(self, grid_size, speed):
+        self.x = random.uniform(10, grid_size - 10)
+        self.y = random.uniform(10, grid_size - 10)
         self.grid_size = grid_size
-        self.direction = random.uniform(0, 2 * np.pi)  # Angle in radians
+        self.speed = speed
+        self.direction = random.uniform(0, 2 * np.pi)
 
     def move(self):
-        dx = np.cos(self.direction)
-        dy = np.sin(self.direction)
+        dx = self.speed * np.cos(self.direction)
+        dy = self.speed * np.sin(self.direction)
         new_x = self.x + dx
         new_y = self.y + dy
 
-        # Bounce off the boundaries
         if new_x < 0 or new_x >= self.grid_size:
             self.direction = np.pi - self.direction
-            new_x = self.x  # Prevent getting stuck by not updating position in the current step
+            new_x = self.x
         else:
             self.x = new_x
 
         if new_y < 0 or new_y >= self.grid_size:
             self.direction = -self.direction
-            new_y = self.y  # Prevent getting stuck by not updating position in the current step
+            new_y = self.y
         else:
             self.y = new_y
 
@@ -140,45 +161,130 @@ class Predator:
         self.move()
 
 
-def run_simulation(grid_size, num_agents, num_scouts, resource_positions, base_position, max_hearing_distance, predator_radius,
-                   steps):
-    agents = [Agent(grid_size, max_hearing_distance) for _ in range(num_agents)]
-    scouts = [ScoutAgent(grid_size, max_hearing_distance) for _ in range(num_scouts)]
-    predator = Predator(grid_size)
+class Hazard:
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+
+class MovableObject:
+    def __init__(self, grid_size, speed, x=None, y=None, hazard_positions=[], hazard_radius=0):
+        self.grid_size = grid_size
+        self.speed = speed
+
+        while True:
+            if x is not None and y is not None:
+                self.x = x
+                self.y = y
+            else:
+                self.x = random.uniform(0, grid_size - 1)
+                self.y = random.uniform(0, grid_size - 1)
+
+            if all(np.sqrt((self.x - hx) ** 2 + (self.y - hy) ** 2) > hazard_radius for hx, hy in hazard_positions):
+                break
+
+        self.direction = random.uniform(0, 2 * np.pi)  # Angle in radians
+
+    def move(self, hazard_positions, hazard_radius):
+        dx = self.speed * np.cos(self.direction)
+        dy = self.speed * np.sin(self.direction)
+        new_x = self.x + dx
+        new_y = self.y + dy
+
+        # Bounce off the boundaries
+        if new_x < 0 or new_x >= self.grid_size or any(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
+            self.direction = np.pi - self.direction
+            new_x = self.x  # Prevent getting stuck by not updating position in the current step
+        else:
+            self.x = new_x
+
+        if new_y < 0 or new_y >= self.grid_size or any(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
+            self.direction = -self.direction
+            new_y = self.y  # Prevent getting stuck by not updating position in the current step
+        else:
+            self.y = new_y
+
+    def step(self, hazard_positions, hazard_radius):
+        self.move(hazard_positions, hazard_radius)
+
+class Resource(MovableObject):
+    def __init__(self, grid_size, speed, quantity, x=None, y=None, hazard_positions=[], hazard_radius=0):
+        super().__init__(grid_size, speed, x, y, hazard_positions, hazard_radius)
+        self.quantity = quantity
+
+def generate_new_resource_position(grid_size, hazard_positions, hazard_radius):
+    while True:
+        new_x = random.uniform(10, grid_size - 10)
+        new_y = random.uniform(10, grid_size - 10)
+        if all(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) > hazard_radius for hx, hy in hazard_positions):
+            return new_x, new_y
+
+def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, base_positions, max_hearing_distance, predator_radius,
+                   hazard_positions, hazard_radius, agent_speed, base_resource_speed, predator_speed, steps, detection_radius=2, resource_quantity=10, aggressiveness=0.5, num_predators=1, create_csv=True):
+    num_scouts = int(num_agents * scout_percentage)
+    num_agents = int(num_agents - num_scouts)
+    agents = [Agent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness) for _ in range(num_agents)]
+    scouts = [ScoutAgent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness) for _ in range(num_scouts)]
+    resources = [Resource(grid_size, base_resource_speed, resource_quantity, x=pos[0], y=pos[1], hazard_positions=hazard_positions, hazard_radius=hazard_radius) for pos in resource_positions]
+    bases = [MovableObject(grid_size, base_resource_speed, x=pos[0], y=pos[1], hazard_positions=hazard_positions, hazard_radius=hazard_radius) for pos in base_positions]
+    predators = [Predator(grid_size, predator_speed) for _ in range(num_predators)]
+    hazards = [Hazard(pos[0], pos[1], hazard_radius) for pos in hazard_positions]
     data = []
 
     for step in range(steps):
-        predator.step()
-        shouts = []
-        for agent in agents + scouts:
-            agent.step()
-            agent.check_position(resource_positions, base_position)
-            shouts.append(agent.shout())
+        for predator in predators:
+            predator.step()
+        for resource in resources:
+            resource.step(hazard_positions, hazard_radius)
+        for base in bases:
+            base.step(hazard_positions, hazard_radius)
 
+        shouts = []
+        alive_agents = []
         for agent in agents + scouts:
+            if agent.alive:
+                agent.step()
+                agent.check_position(resources, (int(bases[0].x), int(bases[0].y)))
+                agent.react_to_predator(predators, predator_radius)
+                if agent.alive:
+                    shouts.append(agent.shout())
+                    alive_agents.append(agent)
+            for hazard in hazards:
+                agent.react_to_hazard(hazard.x, hazard.y, hazard.radius)
+
+        for agent in alive_agents:
             agent.listen(shouts)
-            # React to predator if within the detection radius
-            agent.react_to_predator(predator.x, predator.y, predator_radius)
+
+        agents = [agent for agent in agents if agent.alive]
+        scouts = [scout for scout in scouts if scout.alive]
+
+        while len(resources) < len(resource_positions):
+            new_x, new_y = generate_new_resource_position(grid_size, hazard_positions, hazard_radius)
+            resources.append(Resource(grid_size, base_resource_speed, resource_quantity, x=new_x, y=new_y, hazard_positions=hazard_positions, hazard_radius=hazard_radius))
 
         step_data = {
             'step': step + 1,
             'agents': [(int(agent.x), int(agent.y)) for agent in agents],
             'scouts': [(int(agent.x), int(agent.y)) for agent in scouts],
-            'resources': resource_positions,
-            'base': base_position,
-            'predator': (int(predator.x), int(predator.y))
+            'resources': [(int(res.x), int(res.y)) for res in resources],
+            'bases': [(int(base.x), int(base.y)) for base in bases],
+            'predators': [(int(predator.x), int(predator.y)) for predator in predators],
+            'hazards': [(hazard.x, hazard.y) for hazard in hazards]
         }
         data.append(step_data)
 
-        print(f"Step {step + 1}:")
-        # for idx, agent in enumerate(agents):
-        #     print(f"  Agent {idx}: Position ({int(agent.x)}, {int(agent.y)}), Counters: {agent.counters}")
+    collected_resources = sum(agent.collected_resources for agent in agents)
 
-    filename = save_simulation_data(data, grid_size, num_agents, num_scouts, max_hearing_distance, steps)
-    return filename
+    if create_csv:
+        filename = save_simulation_data(data, grid_size, num_agents, scout_percentage, len(resource_positions), len(base_positions), max_hearing_distance, steps, num_predators)
+    else:
+        filename = "no_save"
 
+    print(f'collected_resources: {collected_resources}')
 
-def save_simulation_data(data, grid_size, num_agents, num_scouts, max_hearing_distance, steps):
+    return collected_resources, filename
+
+def save_simulation_data(data, grid_size, num_agents, scout_percentage, num_resources, num_bases, max_hearing_distance, steps, num_predators):
     records = []
     for entry in data:
         step = entry['step']
@@ -193,126 +299,46 @@ def save_simulation_data(data, grid_size, num_agents, num_scouts, max_hearing_di
         for idx, pos in enumerate(entry['scouts']):
             records.append({
                 'step': step,
-                'agent_id': num_agents + idx,  # Scout IDs start after regular agent IDs
+                'agent_id': num_agents + idx,
                 'x': pos[0],
                 'y': pos[1],
                 'type': 'scout'
             })
-        for pos in entry['resources']:
+        for idx, pos in enumerate(entry['resources']):
+            records.append({
+                'step': step,
+                'agent_id': num_agents + int(num_agents * scout_percentage) + idx,
+                'x': pos[0],
+                'y': pos[1],
+                'type': 'resource'
+            })
+        for idx, pos in enumerate(entry['bases']):
+            records.append({
+                'step': step,
+                'agent_id': num_agents + int(num_agents * scout_percentage) + num_resources + idx,
+                'x': pos[0],
+                'y': pos[1],
+                'type': 'base'
+            })
+        for idx, pos in enumerate(entry['predators']):
             records.append({
                 'step': step,
                 'agent_id': None,
                 'x': pos[0],
                 'y': pos[1],
-                'type': 'resource'
+                'type': f'predator_{idx}'
             })
-        records.append({
-            'step': step,
-            'agent_id': None,
-            'x': entry['base'][0],
-            'y': entry['base'][1],
-            'type': 'base'
-        })
-        records.append({
-            'step': step,
-            'agent_id': None,
-            'x': entry['predator'][0],
-            'y': entry['predator'][1],
-            'type': 'predator'
-        })
+        for idx, pos in enumerate(entry['hazards']):
+            records.append({
+                'step': step,
+                'agent_id': None,
+                'x': pos[0],
+                'y': pos[1],
+                'type': 'hazard'
+            })
 
     df = pd.DataFrame(records)
-    filename = f'simulation_grid{grid_size}_agents{num_agents}_scouts{num_scouts}_hearing{max_hearing_distance}_steps{steps}.csv'
+    filename = f'CSV/simulation_grid{grid_size}_agents{num_agents}_scouts{int(scout_percentage*100)}_resources{num_resources}_bases{num_bases}_hearing{max_hearing_distance}_steps{steps}_predators{num_predators}.csv'
     df.to_csv(filename, index=False)
     print(f"Data saved to {filename}")
     return filename
-
-
-def visualize_simulation(filename):
-    # Load the CSV data
-    df = pd.read_csv(filename)
-
-    # Extract the grid size and number of steps from the filename
-    parts = filename.split('_')
-    grid_size = int(parts[1].replace('grid', ''))
-    num_agents = int(parts[2].replace('agents', ''))
-    num_scouts = int(parts[3].replace('scouts', ''))
-    max_hearing_distance = int(parts[4].replace('hearing', ''))
-    steps = int(parts[5].replace('steps', '').replace('.csv', ''))
-
-    # Set up the video writer
-    scale = 50  # scale to increase the size of the visualization
-    grid_visual_size = grid_size * scale
-    frame_rate = 60  # Increased frame rate for smoother animation
-    video_writer = cv2.VideoWriter('simulation.mp4', cv2.VideoWriter_fourcc(*'mp4v'), frame_rate,
-                                   (grid_visual_size, grid_visual_size))
-
-    for step in range(1, steps + 1):
-        frame = np.ones((grid_visual_size, grid_visual_size, 3), dtype=np.uint8) * 255
-
-        step_data = df[df['step'] == step]
-
-        # Draw the base
-        base = step_data[step_data['type'] == 'base'].iloc[0]
-        base_x, base_y = base['x'], base['y']
-        cv2.circle(frame, (base_x * scale + scale // 2, base_y * scale + scale // 2), scale // 2, (0, 0, 255), -1)
-
-        # Draw the resources
-        resources = step_data[step_data['type'] == 'resource']
-        for _, resource in resources.iterrows():
-            res_x, res_y = resource['x'], resource['y']
-            cv2.circle(frame, (res_x * scale + scale // 2, res_y * scale + scale // 2), scale // 2, (0, 255, 0), -1)
-
-        # Draw the agents
-        agents = step_data[step_data['type'] == 'agent']
-        for _, agent in agents.iterrows():
-            agent_x, agent_y = agent['x'], agent['y']
-            cv2.circle(frame, (int(agent_x * scale + scale // 2), int(agent_y * scale + scale // 2)), scale // 4,
-                       (255, 0, 0), -1)
-
-        # Draw the scouts
-        scouts = step_data[step_data['type'] == 'scout']
-        for _, scout in scouts.iterrows():
-            scout_x, scout_y = scout['x'], scout['y']
-            cv2.circle(frame, (int(scout_x * scale + scale // 2), int(scout_y * scale + scale // 2)), scale // 4,
-                       (0, 0, 255), -1)
-
-        # Draw the predator
-        predator = step_data[step_data['type'] == 'predator'].iloc[0]
-        predator_x, predator_y = predator['x'], predator['y']
-        cv2.circle(frame, (predator_x * scale + scale // 2, predator_y * scale + scale // 2), scale // 2, (0, 0, 0), -1)
-
-        # Write the frame to the video
-        video_writer.write(frame)
-
-        # Display the frame
-        cv2.imshow('Simulation', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # Reduced delay for higher frame rate
-            break
-
-    # Release the video writer and close OpenCV windows
-    video_writer.release()
-    cv2.destroyAllWindows()
-
-
-def main():
-    # Configuration
-    grid_size = 100
-    num_agents = 200
-    num_scouts = 50
-    resource_positions = [(50, 10), (90, 80)]
-    base_position = (60, 55)
-    max_hearing_distance = 25
-    predator_radius = 10
-    steps = 500
-
-    # Run simulation
-    filename = run_simulation(grid_size, num_agents, num_scouts, resource_positions, base_position, max_hearing_distance,
-                              predator_radius, steps)
-
-    # Visualize simulation
-    visualize_simulation(filename)
-
-
-if __name__ == "__main__":
-    main()
