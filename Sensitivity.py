@@ -285,7 +285,7 @@ def predator_radius_vs_aggressiveness():
                 resource_positions=[(10, 10), (70, 60)], base_positions=[(50, 50)],
                 max_hearing_distance=10, predator_radius=radius, hazard_positions=[(25, 25), (60, 60)],
                 hazard_radius=7, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
-                steps=500, detection_radius=5, resource_quantity=300, aggressiveness=aggressiveness, num_predators=2,
+                steps=300, detection_radius=5, resource_quantity=300, aggressiveness=aggressiveness, num_predators=2,
                 safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
@@ -298,14 +298,14 @@ def predator_radius_vs_aggressiveness():
 
 
 if __name__ == "__main__":
-    grid_size_vs_num_agents()
-    base_resource_speed_vs_fitness()
-    predator_speed_vs_fitness()
-    detection_radius_vs_fitness()
-    fitness_vs_steps()
-    grid_size_vs_detection_radius()
-    num_agents_vs_agent_speed()
-    predator_speed_vs_hazard_radius()
-    grid_size_vs_num_agents_3d()
-    analyze_randomization_impact()
+    # grid_size_vs_num_agents()
+    # base_resource_speed_vs_fitness()
+    # predator_speed_vs_fitness()
+    # detection_radius_vs_fitness()
+    # fitness_vs_steps()
+    # grid_size_vs_detection_radius()
+    # num_agents_vs_agent_speed()
+    # predator_speed_vs_hazard_radius()
+    # grid_size_vs_num_agents_3d()
+    # analyze_randomization_impact()
     predator_radius_vs_aggressiveness()
