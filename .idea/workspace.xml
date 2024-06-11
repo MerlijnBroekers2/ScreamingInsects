@@ -7,13 +7,6 @@
     <list default="true" id="ea2c5868-9c15-4d39-b29d-2db24e10c462" name="Changes" comment="All features implemented working">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CSV/simulation_grid80_agents90_scouts10_resources2_bases1_hearing10_steps500_predators0.csv" beforeDir="false" afterPath="$PROJECT_DIR$/CSV/simulation_grid80_agents90_scouts10_resources2_bases1_hearing10_steps500_predators0.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GeneticAlgorithm.py" beforeDir="false" afterPath="$PROJECT_DIR$/GeneticAlgorithm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/InsectSim.py" beforeDir="false" afterPath="$PROJECT_DIR$/InsectSim.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sensitivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sensitivity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SmoothVideo.py" beforeDir="false" afterPath="$PROJECT_DIR$/SmoothVideo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/simulation.mp4" beforeDir="false" afterPath="$PROJECT_DIR$/simulation.mp4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/testing.py" beforeDir="false" afterPath="$PROJECT_DIR$/testing.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,6 +21,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="Backup" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
@@ -39,26 +37,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Python.GeneticAlgorithm.executor": "Run",
-    "Python.InsectSim.executor": "Run",
-    "Python.Sensitivity.executor": "Run",
-    "Python.SmoothVideo.executor": "Run",
-    "Python.testing.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Python.GeneticAlgorithm.executor&quot;: &quot;Run&quot;,
+    &quot;Python.InsectSim.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Sensitivity.executor&quot;: &quot;Run&quot;,
+    &quot;Python.SmoothVideo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testing.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -286,6 +284,6 @@
     <SUITE FILE_PATH="coverage/ScreamingInsects$InsectSim.coverage" NAME="InsectSim Coverage Results" MODIFIED="1718049248508" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ScreamingInsects$GeneticAlgorithm.coverage" NAME="GeneticAlgorithm Coverage Results" MODIFIED="1718053453310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ScreamingInsects$testing.coverage" NAME="testing Coverage Results" MODIFIED="1718050099542" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/ScreamingInsects$Sensitivity.coverage" NAME="Sensitivity Coverage Results" MODIFIED="1718097274769" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/ScreamingInsects$Sensitivity.coverage" NAME="Sensitivity Coverage Results" MODIFIED="1718097547874" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
