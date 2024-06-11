@@ -51,6 +51,14 @@ pip install -r requirements.txt
 ```
 ## Usage
 
+### Testing
+
+To run the tests and ensure everything is working correctly, use:
+
+```bash
+python testing.py
+```
+
 ### Running the Genetic Algorithm
 
 To run the genetic algorithm and optimize the agent parameters, execute the following command:
@@ -58,7 +66,6 @@ To run the genetic algorithm and optimize the agent parameters, execute the foll
 ```bash
 python GeneticAlgorithm.py
 ```
-
 
 ### Performing Sensitivity Analysis
 
@@ -74,13 +81,5 @@ To generate a video visualization of the simulation, execute:
 
 ```bash
 python SmoothVideo.py
-```
-
-### Testing
-
-To run the tests and ensure everything is working correctly, use:
-
-```bash
-python testing.py
 ```
 
