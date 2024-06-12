@@ -9,7 +9,7 @@ def main():
 
     # Drone agent parameters
     num_agents = 100
-    scout_percentage = 0.1  # Percentage of scout drones
+    scout_percentage = 0.25 # Percentage of scout drones
     aggressiveness = 0.5  # Aggressiveness level of the drones
     max_hearing_distance = 20  # Communication range of the drones
     agent_speed = 1.0  # Speed of the drones
