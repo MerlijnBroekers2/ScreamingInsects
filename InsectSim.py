@@ -261,6 +261,9 @@ def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, 
 
         for agent in alive_agents:
             agent.listen(shouts)
+            agent.react_to_predator(predators, predator_radius)
+            for hazard in hazards:
+                agent.react_to_hazard(hazard.x, hazard.y, hazard.radius)
 
         agents = [agent for agent in agents if agent.alive]
         scouts = [scout for scout in scouts if scout.alive]

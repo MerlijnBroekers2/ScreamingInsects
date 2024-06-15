@@ -23,6 +23,10 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
     video_writer = cv2.VideoWriter('simulation.mp4', cv2.VideoWriter_fourcc(*'mp4v'), frame_rate,
                                    (grid_visual_size, grid_visual_size))
 
+    # Get screen dimensions
+    screen_width = 1920
+    screen_height = 1080
+
     for step in range(1, steps + 1):
         frame = np.ones((grid_visual_size, grid_visual_size, 3), dtype=np.uint8) * 255
 
@@ -71,6 +75,17 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
         for _, resource in resources.iterrows():
             res_x, res_y = resource['x'], resource['y']
             cv2.circle(frame, (res_x * scale + scale // 2, res_y * scale + scale // 2), (detection_radius - 1) * scale, (0, 255, 0), -1)
+
+        # Resize frame to fit screen dimensions
+        frame_aspect_ratio = frame.shape[1] / frame.shape[0]
+        if frame.shape[1] > screen_width or frame.shape[0] > screen_height:
+            if frame_aspect_ratio > 1:  # Wide frame
+                new_width = screen_width
+                new_height = int(screen_width / frame_aspect_ratio)
+            else:  # Tall frame
+                new_height = screen_height
+                new_width = int(screen_height * frame_aspect_ratio)
+            frame = cv2.resize(frame, (new_width, new_height))
 
         video_writer.write(frame)
 
