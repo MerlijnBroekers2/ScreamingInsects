@@ -18,6 +18,7 @@ class Agent:
             self.current_target = 'base'
         self.direction = random.uniform(0, 2 * np.pi)
         self.collected_resources = 0
+        self.carrying_resource = False  # Track if the agent is carrying a resource
         self.alive = True
 
     def move(self):
@@ -44,21 +45,25 @@ class Agent:
             self.counters[key] += 1
 
     def check_position(self, resources, base_position):
+        if self.carrying_resource:
+            if np.sqrt((self.x - base_position[0]) ** 2 + (self.y - base_position[1]) ** 2) <= self.detection_radius:
+                self.counters['base'] = 0
+                self.current_target = 'resource'
+                self.direction = (self.direction + np.pi) % (2 * np.pi)
+                self.carrying_resource = False
+                self.collected_resources += 1  # Award point for delivering the resource
+                return
+
         for resource in resources:
             if np.sqrt((self.x - resource.x) ** 2 + (self.y - resource.y) ** 2) <= self.detection_radius:
                 self.counters['resource'] = 0
                 self.current_target = 'base'
                 self.direction = (self.direction + np.pi) % (2 * np.pi)
-                self.collected_resources += 1
+                self.carrying_resource = True  # Pick up the resource
                 resource.quantity -= 1  # Reduce resource quantity by one
                 if resource.quantity <= 0:
                     resources.remove(resource)  # Remove depleted resource
                 return
-
-        if np.sqrt((self.x - base_position[0]) ** 2 + (self.y - base_position[1]) ** 2) <= self.detection_radius:
-            self.counters['base'] = 0
-            self.current_target = 'resource'
-            self.direction = (self.direction + np.pi) % (2 * np.pi)
 
     def shout(self):
         shout_value_resource = self.counters['resource'] + self.max_hearing_distance
@@ -97,15 +102,44 @@ class Agent:
             if distance <= predator_radius:
                 if random.random() > self.aggressiveness:  # Only avoid predator based on aggressiveness level
                     self.set_direction_away(predator.x, predator.y)
-                if distance <= predator_radius / 4:  # Agent dies if too close to the predator
+                if distance <= predator_radius / 2:  # Agent dies if too close to the predator
                     self.alive = False
 
-    def react_to_hazard(self, hazard_x, hazard_y, hazard_radius):
-        distance = np.sqrt((self.x - hazard_x) ** 2 + (self.y - hazard_y) ** 2)
-        if distance <= hazard_radius:
-            self.set_direction_away(hazard_x, hazard_y)
-            return True
+    def react_to_hazard(self, hazard_positions, hazard_radius):
+        for hazard_x, hazard_y in hazard_positions:
+            distance = np.sqrt((self.x - hazard_x) ** 2 + (self.y - hazard_y) ** 2)
+            if distance <= hazard_radius:
+                self.avoid_hazard(hazard_positions, hazard_radius)
+                return True
         return False
+
+    def avoid_hazard(self, hazard_positions, hazard_radius):
+        best_direction = self.direction
+        best_distance = float('inf')
+        steps_to_check = 8  # Number of directions to check for the best path
+
+        for i in range(steps_to_check):
+            angle = self.direction + (2 * np.pi * i / steps_to_check)
+            dx = self.speed * np.cos(angle)
+            dy = self.speed * np.sin(angle)
+            new_x = self.x + dx
+            new_y = self.y + dy
+
+            if not (0 <= new_x < self.grid_size and 0 <= new_y < self.grid_size):
+                continue  # Skip if out of bounds
+
+            min_distance_to_hazard = min(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) for hx, hy in hazard_positions)
+            if min_distance_to_hazard > hazard_radius:
+                if min_distance_to_hazard < best_distance:
+                    best_distance = min_distance_to_hazard
+                    best_direction = angle
+
+        # Move in the best direction found
+        self.direction = best_direction
+        dx = self.speed * np.cos(self.direction)
+        dy = self.speed * np.sin(self.direction)
+        self.x += dx
+        self.y += dy
 
 
 class ScoutAgent(Agent):
@@ -133,8 +167,16 @@ class ScoutAgent(Agent):
 
 class Predator:
     def __init__(self, grid_size, speed, safe_zone=None):
-        self.x = random.uniform(10, grid_size - 10)
-        self.y = random.uniform(10, grid_size - 10)
+        while True:
+            self.x = random.uniform(10, grid_size - 10)
+            self.y = random.uniform(10, grid_size - 10)
+            if safe_zone:
+                safe_zone_x, safe_zone_y, safe_zone_width, safe_zone_height = safe_zone
+                if not (safe_zone_x <= self.x <= safe_zone_x + safe_zone_width and safe_zone_y <= self.y <= safe_zone_y + safe_zone_height):
+                    break
+            else:
+                break
+
         self.grid_size = grid_size
         self.speed = speed
         self.direction = random.uniform(0, 2 * np.pi)
@@ -257,13 +299,13 @@ def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, 
                     shouts.append(agent.shout())
                     alive_agents.append(agent)
             for hazard in hazards:
-                agent.react_to_hazard(hazard.x, hazard.y, hazard.radius)
+                agent.react_to_hazard(hazard_positions, hazard_radius)
 
         for agent in alive_agents:
             agent.listen(shouts)
             agent.react_to_predator(predators, predator_radius)
             for hazard in hazards:
-                agent.react_to_hazard(hazard.x, hazard.y, hazard.radius)
+                agent.react_to_hazard(hazard_positions, hazard_radius)
 
         agents = [agent for agent in agents if agent.alive]
         scouts = [scout for scout in scouts if scout.alive]

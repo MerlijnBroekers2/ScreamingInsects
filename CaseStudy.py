@@ -5,23 +5,23 @@ def main():
 
     # Battlefield grid parameters
     grid_size = 100  # 1 grid element = 1 km
-    steps = 500
+    steps = 400
 
     # Drone agent parameters
-    num_agents = 50
-    scout_percentage = 0.25  # Percentage of scout drones
-    aggressiveness = 0.5  # Aggressiveness level of the drones
+    num_agents = 100
+    scout_percentage = 0.1  # Percentage of scout drones
+    aggressiveness = 0.0 # Aggressiveness level of the drones
     max_hearing_distance = 45  # Communication range of the drones in km (scaled to grid size)
     agent_speed = 1.0  # Speed of the drones (108 km/h, highest speed = 1.0)
-    detection_radius = 5  # Detection radius of the drones in km
+    detection_radius = 6  # Detection radius of the drones in km
 
     # Friendly troop positions (resources) parameters
     resource_positions = [(60, 80), (90, 20)]  # Locations of friendly troops in grid coordinates
-    resource_quantity = 500  # Initial supply quantity needed by each troop
+    resource_quantity = 250  # Initial supply quantity needed by each troop
     resource_speed = 0.05  # Movement speed of friendly troops (5 km/h scaled relative to 108 km/h)
 
     # Base (supply depot) parameters
-    base_positions = [(10, 20)]  # Locations of supply depots in grid coordinates
+    base_positions = [(10, 25)]  # Locations of supply depots in grid coordinates
     base_speed = 0.0  # Supply depots are stationary (0 km/h)
 
     # Enemy combatant (predator) parameters
@@ -30,11 +30,11 @@ def main():
     predator_radius = 3  # Detection radius of enemy combatants in km
 
     # Minefield (hazard) parameters
-    hazard_positions = [(35, 35), (70, 60)]  # Locations of minefields in grid coordinates
-    hazard_radius = 5  # Detection radius of minefields in km
+    hazard_positions = [[40, 40], [55,60]]  # Locations of minefields in grid coordinates
+    hazard_radius = 5 # Detection radius of minefields in km
 
     # Safe zone parameters (e.g., secured supply routes)
-    safe_zone = (0, 0, 20, 100)  # (x, y, width, height) of the safe zone in grid coordinates
+    safe_zone = (0, 0, 20, 50)  # (x, y, width, height) of the safe zone in grid coordinates
 
     # Penalty for drones being shot down
     penalty = -10
