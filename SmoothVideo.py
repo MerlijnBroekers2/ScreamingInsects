@@ -20,15 +20,17 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
     scale = 50
     grid_visual_size = grid_size * scale
     frame_rate = 30
-    video_writer = cv2.VideoWriter('simulation.mp4', cv2.VideoWriter_fourcc(*'mp4v'), frame_rate,
-                                   (grid_visual_size, grid_visual_size))
 
-    # Get screen dimensions
-    screen_width = 1920
-    screen_height = 1080
+    # Ensure the frame size is consistent
+    frame_width = grid_visual_size
+    frame_height = grid_visual_size
+
+    # Use a codec that is widely supported
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    video_writer = cv2.VideoWriter('simulation.avi', fourcc, frame_rate, (frame_width, frame_height))
 
     for step in range(1, steps + 1):
-        frame = np.ones((grid_visual_size, grid_visual_size, 3), dtype=np.uint8) * 255
+        frame = np.ones((frame_height, frame_width, 3), dtype=np.uint8) * 255
 
         # Draw safe zone if defined
         if safe_zone:
@@ -46,7 +48,7 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
         hazards = step_data[step_data['type'] == 'hazard']
         for _, hazard in hazards.iterrows():
             hazard_x, hazard_y = hazard['x'], hazard['y']
-            cv2.circle(frame, (hazard_x * scale + scale // 2, hazard_y * scale + scale // 2), (hazard_radius - 1) * scale, (128, 128, 128), -1)
+            cv2.circle(frame, (hazard_x * scale + scale // 2, hazard_y * scale + scale // 2), (hazard_radius - 2) * scale, (128, 128, 128), -1)
 
         # Draw predators
         for idx in range(num_predators):
@@ -76,17 +78,7 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
             res_x, res_y = resource['x'], resource['y']
             cv2.circle(frame, (res_x * scale + scale // 2, res_y * scale + scale // 2), (detection_radius - 1) * scale, (0, 255, 0), -1)
 
-        # Resize frame to fit screen dimensions
-        frame_aspect_ratio = frame.shape[1] / frame.shape[0]
-        if frame.shape[1] > screen_width or frame.shape[0] > screen_height:
-            if frame_aspect_ratio > 1:  # Wide frame
-                new_width = screen_width
-                new_height = int(screen_width / frame_aspect_ratio)
-            else:  # Tall frame
-                new_height = screen_height
-                new_width = int(screen_height * frame_aspect_ratio)
-            frame = cv2.resize(frame, (new_width, new_height))
-
+        # Write frame to video
         video_writer.write(frame)
 
         cv2.imshow('Simulation', frame)
