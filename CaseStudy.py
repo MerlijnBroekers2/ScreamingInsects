@@ -5,13 +5,13 @@ def main():
 
     # Battlefield grid parameters
     grid_size = 100  # 1 grid element = 1 km
-    steps = 400
+    steps = 3000
 
     # Drone agent parameters
     num_agents = 100
-    scout_percentage = 0.1  # Percentage of scout drones
-    aggressiveness = 0.0 # Aggressiveness level of the drones
-    max_hearing_distance = 45  # Communication range of the drones in km (scaled to grid size)
+    scout_percentage = 0.1244071196757956  # Percentage of scout drones
+    aggressiveness = 0.21635166044757836 # Aggressiveness level of the drones
+    max_hearing_distance = 33  # Communication range of the drones in km (scaled to grid size)
     agent_speed = 1.0  # Speed of the drones (108 km/h, highest speed = 1.0)
     detection_radius = 6  # Detection radius of the drones in km
 

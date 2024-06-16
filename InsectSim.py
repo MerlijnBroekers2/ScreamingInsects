@@ -2,10 +2,15 @@ import random
 import numpy as np
 import pandas as pd
 
+
 class Agent:
-    def __init__(self, grid_size, max_hearing_distance, speed, detection_radius=2, aggressiveness=0.5):
-        self.x = random.uniform(2, grid_size - 2)
-        self.y = random.uniform(2, grid_size - 2)
+    def __init__(self, grid_size, max_hearing_distance, speed, detection_radius=2, aggressiveness=0.5,
+                 hazard_positions=[], hazard_radius=0):
+        while True:
+            self.x = random.uniform(2, grid_size - 2)
+            self.y = random.uniform(2, grid_size - 2)
+            if all(np.sqrt((self.x - hx) ** 2 + (self.y - hy) ** 2) > hazard_radius for hx, hy in hazard_positions):
+                break
         self.grid_size = grid_size
         self.max_hearing_distance = max_hearing_distance
         self.speed = speed
@@ -143,6 +148,11 @@ class Agent:
 
 
 class ScoutAgent(Agent):
+    def __init__(self, grid_size, max_hearing_distance, speed, detection_radius=2, aggressiveness=0.5,
+                 hazard_positions=[], hazard_radius=0):
+        super().__init__(grid_size, max_hearing_distance, speed, detection_radius, aggressiveness, hazard_positions,
+                         hazard_radius)
+
     def check_position(self, resources, base_position):
         for resource in resources:
             if np.sqrt((self.x - resource.x) ** 2 + (self.y - resource.y) ** 2) <= self.detection_radius:
@@ -172,7 +182,8 @@ class Predator:
             self.y = random.uniform(10, grid_size - 10)
             if safe_zone:
                 safe_zone_x, safe_zone_y, safe_zone_width, safe_zone_height = safe_zone
-                if not (safe_zone_x <= self.x <= safe_zone_x + safe_zone_width and safe_zone_y <= self.y <= safe_zone_y + safe_zone_height):
+                if not (
+                        safe_zone_x <= self.x <= safe_zone_x + safe_zone_width and safe_zone_y <= self.y <= safe_zone_y + safe_zone_height):
                     break
             else:
                 break
@@ -203,7 +214,8 @@ class Predator:
         # Avoid safe zone
         if self.safe_zone:
             safe_zone_x, safe_zone_y, safe_zone_width, safe_zone_height = self.safe_zone
-            if (safe_zone_x <= new_x <= safe_zone_x + safe_zone_width) and (safe_zone_y <= new_y <= safe_zone_y + safe_zone_height):
+            if (safe_zone_x <= new_x <= safe_zone_x + safe_zone_width) and (
+                    safe_zone_y <= new_y <= safe_zone_y + safe_zone_height):
                 self.direction = (self.direction + np.pi) % (2 * np.pi)
 
     def step(self):
@@ -215,6 +227,7 @@ class Hazard:
         self.x = x
         self.y = y
         self.radius = radius
+
 
 class MovableObject:
     def __init__(self, grid_size, speed, x=None, y=None, hazard_positions=[], hazard_radius=0):
@@ -241,13 +254,15 @@ class MovableObject:
         new_y = self.y + dy
 
         # Bounce off the boundaries
-        if new_x < 0 or new_x >= self.grid_size or any(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
+        if new_x < 0 or new_x >= self.grid_size or any(
+                np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
             self.direction = np.pi - self.direction
             new_x = self.x  # Prevent getting stuck by not updating position in the current step
         else:
             self.x = new_x
 
-        if new_y < 0 or new_y >= self.grid_size or any(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
+        if new_y < 0 or new_y >= self.grid_size or any(
+                np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) <= hazard_radius for hx, hy in hazard_positions):
             self.direction = -self.direction
             new_y = self.y  # Prevent getting stuck by not updating position in the current step
         else:
@@ -256,10 +271,12 @@ class MovableObject:
     def step(self, hazard_positions, hazard_radius):
         self.move(hazard_positions, hazard_radius)
 
+
 class Resource(MovableObject):
     def __init__(self, grid_size, speed, quantity, x=None, y=None, hazard_positions=[], hazard_radius=0):
         super().__init__(grid_size, speed, x, y, hazard_positions, hazard_radius)
         self.quantity = quantity
+
 
 def generate_new_resource_position(grid_size, hazard_positions, hazard_radius):
     while True:
@@ -268,14 +285,24 @@ def generate_new_resource_position(grid_size, hazard_positions, hazard_radius):
         if all(np.sqrt((new_x - hx) ** 2 + (new_y - hy) ** 2) > hazard_radius for hx, hy in hazard_positions):
             return new_x, new_y
 
-def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, base_positions, max_hearing_distance, predator_radius,
-                   hazard_positions, hazard_radius, agent_speed, base_speed, resource_speed, predator_speed, steps, detection_radius=2, resource_quantity=10, aggressiveness=0.5, num_predators=1, safe_zone=None, penalty=-10, create_csv=True):
+
+def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, base_positions, max_hearing_distance,
+                   predator_radius,
+                   hazard_positions, hazard_radius, agent_speed, base_speed, resource_speed, predator_speed, steps,
+                   detection_radius=2, resource_quantity=10, aggressiveness=0.5, num_predators=1, safe_zone=None,
+                   penalty=-10, create_csv=True):
     num_scouts = int(num_agents * scout_percentage)
     num_agents = int(num_agents - num_scouts)
-    agents = [Agent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness) for _ in range(num_agents)]
-    scouts = [ScoutAgent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness) for _ in range(num_scouts)]
-    resources = [Resource(grid_size, resource_speed, resource_quantity, x=pos[0], y=pos[1], hazard_positions=hazard_positions, hazard_radius=hazard_radius) for pos in resource_positions]
-    bases = [MovableObject(grid_size, base_speed, x=pos[0], y=pos[1], hazard_positions=hazard_positions, hazard_radius=hazard_radius) for pos in base_positions]
+    agents = [Agent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness, hazard_positions,
+                    hazard_radius) for _ in range(num_agents)]
+    scouts = [
+        ScoutAgent(grid_size, max_hearing_distance, agent_speed, detection_radius, aggressiveness, hazard_positions,
+                   hazard_radius) for _ in range(num_scouts)]
+    resources = [
+        Resource(grid_size, resource_speed, resource_quantity, x=pos[0], y=pos[1], hazard_positions=hazard_positions,
+                 hazard_radius=hazard_radius) for pos in resource_positions]
+    bases = [MovableObject(grid_size, base_speed, x=pos[0], y=pos[1], hazard_positions=hazard_positions,
+                           hazard_radius=hazard_radius) for pos in base_positions]
     predators = [Predator(grid_size, predator_speed, safe_zone=safe_zone) for _ in range(num_predators)]
     hazards = [Hazard(pos[0], pos[1], hazard_radius) for pos in hazard_positions]
     data = []
@@ -312,7 +339,8 @@ def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, 
 
         while len(resources) < len(resource_positions):
             new_x, new_y = generate_new_resource_position(grid_size, hazard_positions, hazard_radius)
-            resources.append(Resource(grid_size, resource_speed, resource_quantity, x=new_x, y=new_y, hazard_positions=hazard_positions, hazard_radius=hazard_radius))
+            resources.append(Resource(grid_size, resource_speed, resource_quantity, x=new_x, y=new_y,
+                                      hazard_positions=hazard_positions, hazard_radius=hazard_radius))
 
         step_data = {
             'step': step + 1,
@@ -330,7 +358,8 @@ def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, 
     fitness = collected_resources + penalty * num_agents_lost
 
     if create_csv:
-        filename = save_simulation_data(data, grid_size, num_agents, scout_percentage, len(resource_positions), len(base_positions), max_hearing_distance, steps, num_predators)
+        filename = save_simulation_data(data, grid_size, num_agents, scout_percentage, len(resource_positions),
+                                        len(base_positions), max_hearing_distance, steps, num_predators)
     else:
         filename = "no_save"
 
@@ -340,7 +369,9 @@ def run_simulation(grid_size, num_agents, scout_percentage, resource_positions, 
 
     return fitness, filename
 
-def save_simulation_data(data, grid_size, num_agents, scout_percentage, num_resources, num_bases, max_hearing_distance, steps, num_predators):
+
+def save_simulation_data(data, grid_size, num_agents, scout_percentage, num_resources, num_bases, max_hearing_distance,
+                         steps, num_predators):
     records = []
     for entry in data:
         step = entry['step']
@@ -394,7 +425,7 @@ def save_simulation_data(data, grid_size, num_agents, scout_percentage, num_reso
             })
 
     df = pd.DataFrame(records)
-    filename = f'CSV/simulation_grid{grid_size}_agents{num_agents}_scouts{int(scout_percentage*100)}_resources{num_resources}_bases{num_bases}_hearing{max_hearing_distance}_steps{steps}_predators{num_predators}.csv'
+    filename = f'CSV/simulation_grid{grid_size}_agents{num_agents}_scouts{int(scout_percentage * 100)}_resources{num_resources}_bases{num_bases}_hearing{max_hearing_distance}_steps{steps}_predators{num_predators}.csv'
     df.to_csv(filename, index=False)
     print(f"Data saved to {filename}")
     return filename
