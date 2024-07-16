@@ -275,7 +275,7 @@ def analyze_randomization_impact():
 
 
 def predator_radius_vs_aggressiveness():
-    predator_radii = np.arange(1, 11, 1)
+    predator_radii = np.arange(1, 22, 2)
     aggressiveness_levels = np.arange(0.1, 1.1, 0.1)
     fitness_matrix = np.zeros((len(predator_radii), len(aggressiveness_levels)))
 
@@ -284,13 +284,13 @@ def predator_radius_vs_aggressiveness():
             fitness_matrix[i, j] = average_fitness_over_runs(
                 40, grid_size=100, num_agents=50, scout_percentage=0.1,
                 resource_positions=[(10, 10), (70, 70)], base_positions=[(50, 50)],
-                max_hearing_distance=45, predator_radius=radius, hazard_positions=[(25, 25), (60, 60)],
+                max_hearing_distance=45, predator_radius=radius, hazard_positions=[],
                 hazard_radius=1, agent_speed=1.0, base_speed=0.0, resource_speed=0.0, predator_speed=0.25,
-                steps=250, detection_radius=5, resource_quantity=300, aggressiveness=aggressiveness, num_predators=2,
+                steps=250, detection_radius=5, resource_quantity=300, aggressiveness=aggressiveness, num_predators=4,
                 safe_zone=None, create_csv=False)
 
     plt.figure(figsize=(10, 8))
-    plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[0.1, 1.0, 1, 10])
+    plt.imshow(fitness_matrix, aspect='auto', cmap='viridis', extent=[0.1, 1.0, 1, 20])
     plt.colorbar(label='Average Fitness')
     plt.xlabel('Aggressiveness')
     plt.ylabel('Predator Radius')
@@ -526,7 +526,7 @@ def fitness_vs_steps_with_spread():
 
 if __name__ == "__main__":
     # fitness_vs_hearing_distance()
-    fitness_vs_steps_with_spread()
+    # fitness_vs_steps_with_spread()
     # grid_size_vs_num_agents()
-    # predator_radius_vs_aggressiveness()
+    predator_radius_vs_aggressiveness()
     # sensitivity_analysis_runtime()

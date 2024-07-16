@@ -1,14 +1,16 @@
 # Genetic Algorithm Insect Simulation
 
-This project simulates the behavior of agents (insects) in a grid environment using a genetic algorithm. The goal of the agents is to collect resources while avoiding hazards and predators. The simulation allows for the optimization of various parameters to improve the agents' performance using a genetic algorithm. The project also includes sensitivity analysis to understand the impact of different parameters on the agents' performance.
+This project simulates the behavior of agents (insects) in a grid environment using optimization algorithms. The goal of the agents is to collect resources while avoiding hazards and predators. The simulation allows for the optimization of various parameters to improve the agents' performance using a genetic algorithm and Particle Swarm Optimization (PSO). The project also includes sensitivity analysis to understand the impact of different parameters on the agents' performance.
 
 ## Introduction
 
-In this simulation, agents move within a grid environment, searching for resources and returning them to a base. The agents can communicate with each other through "shouts" to share information about the locations of resources and the base. The environment also includes hazards and predators that the agents need to avoid. The agents' behavior is influenced by several parameters, such as their speed, detection radius, and aggressiveness. By using a genetic algorithm, we can optimize these parameters to maximize the agents' resource collection efficiency.
+In this simulation, agents move within a grid environment, searching for resources and returning them to a base. The agents can communicate with each other through "shouts" to share information about the locations of resources and the base. The environment also includes hazards and predators that the agents need to avoid. The agents' behavior is influenced by several parameters, such as their speed, detection radius, and aggressiveness. By using optimization algorithms, we can optimize these parameters to maximize the agents' resource collection efficiency.
 
 ## Project Structure
 
 - `GeneticAlgorithm.py`: Implements the genetic algorithm to optimize the parameters of the agents in the simulation. It uses the DEAP library for the genetic algorithm and calls functions from the `InsectSim.py` file to run the simulation and evaluate the fitness of the agents.
+
+- `PSO.py`: Implements Particle Swarm Optimization (PSO) to optimize the parameters of the agents in the simulation. It uses the pyswarm library for PSO and calls functions from the `InsectSim.py` file to run the simulation and evaluate the fitness of the agents.
 
 - `InsectSim.py`: Contains the core simulation logic, including the definition of agents, predators, resources, and hazards. This script includes functions to run the simulation and calculate the fitness of agents based on their performance. It also allows setting various parameters for the simulation.
 
@@ -41,6 +43,7 @@ In this simulation, agents move within a grid environment, searching for resourc
 - **aggressiveness**: The aggressiveness level of the agents, affecting their behavior towards predators.
 - **num_predators**: The number of predators in the simulation.
 - **create_csv**: A boolean indicating whether to save the simulation data to a CSV file.
+- **penalty**: Value indicating the penalty given when an agent is destroyed by a predator
 
 ## Installation
 
@@ -65,6 +68,14 @@ To run the genetic algorithm and optimize the agent parameters, execute the foll
 
 ```bash
 python GeneticAlgorithm.py
+```
+
+### Running the Particle Swarm Optimization (PSO)
+
+To run the PSO algorithm and optimize the agent parameters, execute the following command:
+
+```bash
+python PSO.py
 ```
 
 ### Performing Sensitivity Analysis
