@@ -1,4 +1,4 @@
-# Genetic Algorithm Insect Simulation
+# Screaming Drones
 
 This project simulates the behavior of agents (insects) in a grid environment using optimization algorithms. The goal of the agents is to collect resources while avoiding hazards and predators. The simulation allows for the optimization of various parameters to improve the agents' performance using a genetic algorithm and Particle Swarm Optimization (PSO). The project also includes sensitivity analysis to understand the impact of different parameters on the agents' performance. The simulation is best understood through observing the following [animation](https://drive.google.com/file/d/1AGkn2obFhGS1s41LHQjYEQW88rJ78o-R/view?usp=sharing).
 
