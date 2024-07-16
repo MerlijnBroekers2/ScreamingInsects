@@ -8,7 +8,7 @@ def main():
     steps = 500
 
     # Drone agent parameters
-    num_agents = 100
+    num_agents = 200
     scout_percentage = 0.1 # Percentage of scout drones
     aggressiveness = 0.5  # Aggressiveness level of the drones
     max_hearing_distance = 27  # Communication range of the drones

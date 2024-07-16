@@ -87,3 +87,15 @@ def visualize_simulation(filename, detection_radius, hazard_radius, safe_zone=No
 
     video_writer.release()
     cv2.destroyAllWindows()
+
+# Sample simulation included to show animation generation
+def main():
+    filename = 'CSV/simulation_grid100_agents180_scouts10_resources1_bases1_hearing27_steps500_predators0.csv'
+    detection_radius = 3
+    hazard_radius = 3
+    safe_zone = (0, 0, 0, 0)  # Example safe zone coordinates and dimensions
+
+    visualize_simulation(filename, detection_radius, hazard_radius, safe_zone)
+
+if __name__ == "__main__":
+    main()
