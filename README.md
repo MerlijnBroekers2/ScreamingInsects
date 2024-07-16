@@ -20,7 +20,7 @@ In this simulation, agents move within a grid environment, searching for resourc
 
 - `testing.py`: Contains testing code to verify the functionality of the simulation and genetic algorithm. It ensures that the different components of the project are working correctly.
 
-- `simulation.mp4`: A sample video output of the simulation, demonstrating the behavior of the agents within the environment.
+- `simulation.avi`: A sample video output of a simple simulation, demonstrating the basic behavior of the agents within the environment.
 
 ## Parameters
 

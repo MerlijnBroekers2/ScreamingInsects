@@ -5,10 +5,10 @@ def main():
 
     # Battlefield grid parameters
     grid_size = 100
-    steps = 1000
+    steps = 500
 
     # Drone agent parameters
-    num_agents = 50
+    num_agents = 100
     scout_percentage = 0.1 # Percentage of scout drones
     aggressiveness = 0.5  # Aggressiveness level of the drones
     max_hearing_distance = 27  # Communication range of the drones
@@ -17,7 +17,7 @@ def main():
 
     # Friendly troop positions (resources) parameters
     resource_positions = [(90, 50)]  # Locations of friendly troops
-    resource_quantity = 2000  # Initial supply quantity needed by each troop
+    resource_quantity = 300  # Initial supply quantity needed by each troop
     resource_speed = 0.00  # Movement speed of friendly troops (if applicable)
 
     # Base (supply depot) parameters
@@ -30,7 +30,7 @@ def main():
     predator_radius = 10  # Detection radius of enemy combatants
 
     # Minefield (hazard) parameters
-    hazard_positions = [(50, 50)]  # Locations of minefields
+    hazard_positions = []  # Locations of minefields
     hazard_radius = 15  # Detection radius of minefields
 
     # Safe zone parameters (e.g., secured supply routes)
